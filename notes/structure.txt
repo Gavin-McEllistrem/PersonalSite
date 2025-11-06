@@ -1,0 +1,13 @@
+personal-website/
+├── backend/
+│   └── (your Rust + Actix app)
+└── frontend/
+    └── (your Vite + React app)
+
+While you develop:
+
+Backend runs on http://localhost:8080 (Actix)
+
+Frontend runs on http://localhost:5173 (Vite)
+
+So API calls from React must be proxied to the backend.

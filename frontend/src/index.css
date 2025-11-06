@@ -1,0 +1,17 @@
+body, html {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.app-container {
+  display: flex;
+}
+
+.main-content {
+  margin-left: 220px;
+  padding: 2rem;
+  width: calc(100% - 220px);
+}
+
+@media (max-width: 768px) {
+}

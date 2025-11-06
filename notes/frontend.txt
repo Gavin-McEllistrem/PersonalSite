@@ -1,0 +1,6 @@
+frontend will be run in a local environment for testing,
+when ready for production, build static files and serve with
+backend. 
+
+We are using Vite as a development server
+npm run dev -> spin up localhost
