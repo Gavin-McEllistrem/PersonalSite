@@ -1,3 +1,5 @@
+# Production docker-compose with bind mounts to specific VM paths
+# Usage: docker-compose -f docker-compose.prod.yml up -d
 version: '3.8'
 
 services:
@@ -14,10 +16,9 @@ services:
       - DATABASE_URL=sqlite:/var/lib/personal-website/blog.db
       - UPLOAD_DIR=/var/lib/personal-website/photos
     volumes:
-      # Database storage
-      - db-data:/var/lib/personal-website
-      # Uploaded photos
-      - photo-data:/var/lib/personal-website/photos
+      # Bind mount to VM paths for easier access
+      - /var/lib/personal-website:/var/lib/personal-website
+      - /var/lib/personal-website/photos:/var/lib/personal-website/photos
 
   frontend:
     build:
@@ -32,15 +33,9 @@ services:
     networks:
       - app-network
     volumes:
-      # Share photos with frontend for serving via nginx
-      - photo-data:/usr/share/nginx/html/photos:ro
+      # Share photos with frontend for serving via nginx (read-only)
+      - /var/lib/personal-website/photos:/usr/share/nginx/html/photos:ro
 
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  db-data:
-    driver: local
-  photo-data:
-    driver: local
