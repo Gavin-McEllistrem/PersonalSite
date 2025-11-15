@@ -22,7 +22,8 @@ Personal Website/
 │   ├── Dockerfile         # Frontend container image
 │   └── .dockerignore      # Docker build exclusions
 ├── docker-compose.yml     # Container orchestration (named volumes)
-└── docker-compose.prod.yml # Production config (bind mounts)
+├── docker-compose.prod.yml # Production config (bind mounts)
+└── deploy.sh              # Deployment automation script
 ```
 
 ## Architecture
@@ -49,7 +50,55 @@ User Request → Nginx (Port 80)
 
 ## Deployment
 
-### Local Deployment
+### Automated Deployment (Recommended)
+
+The project includes a deployment script (`deploy.sh`) that automates setup, updates, backups, and monitoring.
+
+**Initial VM Setup:**
+```bash
+# Copy project to VM
+scp -r "Personal Website" user@your-vm-ip:/home/user/Master/
+
+# SSH into VM and run setup
+ssh user@your-vm-ip
+cd "Master/Personal Website"
+./deploy.sh setup
+```
+
+**Deploy or Update Application:**
+```bash
+./deploy.sh deploy
+```
+
+**Backup Database and Photos:**
+```bash
+./deploy.sh backup
+```
+
+**Check Application Status:**
+```bash
+./deploy.sh status
+```
+
+**View Logs:**
+```bash
+./deploy.sh logs           # All logs
+./deploy.sh logs backend   # Backend only
+./deploy.sh logs frontend  # Frontend only
+```
+
+**Other Commands:**
+```bash
+./deploy.sh start          # Start containers
+./deploy.sh stop           # Stop containers
+./deploy.sh restart        # Restart containers
+./deploy.sh restore <file> # Restore from backup
+./deploy.sh help           # Show all commands
+```
+
+### Manual Deployment
+
+#### Local Deployment
 
 1. Navigate to project directory:
    ```bash
@@ -76,7 +125,7 @@ User Request → Nginx (Port 80)
    docker-compose down
    ```
 
-### Remote Deployment (Debian VM)
+#### Remote Deployment (Debian VM)
 
 1. Install Docker on Debian VM:
    ```bash
@@ -95,13 +144,13 @@ User Request → Nginx (Port 80)
 
 3. Copy project to VM:
    ```bash
-   scp -r "Personal Website" user@your-vm-ip:/home/user/
+   scp -r "Personal Website" user@your-vm-ip:/home/user/Master/
    ```
 
 4. SSH into VM and deploy:
    ```bash
    ssh user@your-vm-ip
-   cd "Personal Website"
+   cd "Master/Personal Website"
 
    # Option A: Use Docker named volumes (managed by Docker)
    docker-compose up -d

@@ -1,0 +1,422 @@
+================================================================================
+                    FRONTEND ARCHITECTURE DOCUMENTATION
+================================================================================
+
+## TECHNOLOGY STACK
+
+Core Framework:
+- React 19.1.1 (latest)
+- TypeScript 5.9.3
+- Vite 7.1.7 (build tool and dev server)
+
+Routing:
+- React Router DOM 7.9.4 (client-side routing)
+
+Content Rendering:
+- react-markdown 10.1.0 (for rendering markdown content)
+
+Development:
+- ESLint (code linting)
+- TypeScript ESLint
+- Vite plugin for React with Fast Refresh
+
+Production Server:
+- Nginx (Alpine-based, runs in Docker container)
+
+================================================================================
+
+## PROJECT STRUCTURE
+
+frontend/
+├── src/
+│   ├── main.tsx              # Application entry point
+│   ├── App.tsx               # Root component with routing
+│   ├── index.css             # Global styles
+│   │
+│   ├── components/           # Reusable React components
+│   │   ├── Navbar.tsx        # Site navigation component
+│   │   ├── Navbar.css        # Navbar styles
+│   │   └── PostListItem.tsx  # Blog post preview card component
+│   │
+│   ├── pages/                # Page-level components (route targets)
+│   │   ├── Blog.tsx          # Blog list page (home)
+│   │   ├── Post.tsx          # Individual post view page
+│   │   └── About.tsx         # About page
+│   │
+│   ├── types/                # TypeScript type definitions
+│   │   └── post.ts           # Post-related interfaces
+│   │
+│   └── assets/               # Static assets (images, icons)
+│       └── react.svg
+│
+├── public/                   # Static files copied as-is to dist/
+├── nginx.conf                # Nginx configuration for production
+├── Dockerfile                # Multi-stage Docker build
+├── package.json              # Dependencies and scripts
+├── tsconfig.json             # TypeScript configuration
+└── vite.config.ts            # Vite bundler configuration
+
+================================================================================
+
+## ROUTING ARCHITECTURE
+
+React Router handles all client-side routing with the following routes:
+
+Route Structure:
+/                     → Blog.tsx      (Blog post list - home page)
+/posts/:slug          → Post.tsx      (Individual blog post view)
+/about                → About.tsx     (About page)
+
+How It Works:
+1. App.tsx wraps all routes in BrowserRouter
+2. Routes component defines path-to-component mappings
+3. Navbar provides navigation links
+4. React Router handles SPA navigation without page reloads
+
+Client-Side Navigation:
+- Uses <Link> components from react-router-dom
+- Prevents full page reloads
+- Maintains application state across navigation
+
+================================================================================
+
+## COMPONENT ARCHITECTURE
+
+### main.tsx
+- Application entry point
+- Renders App component into root div
+- Wraps app in React StrictMode for development warnings
+
+### App.tsx (Root Component)
+- Sets up BrowserRouter for routing
+- Defines route configuration
+- Renders Navbar (persistent across pages)
+- Provides main content area for page components
+
+### Navbar Component
+- Persistent navigation across all pages
+- Contains site title and navigation links
+- Uses CSS for styling (Navbar.css)
+- Provides links to Blog and About pages
+
+### PostListItem Component
+- Reusable component for displaying blog post previews
+- Props: { post: PostListItemType }
+- Displays: title, date, excerpt
+- Interactive hover effects
+- Links to individual post pages via slug
+
+### Page Components
+
+Blog.tsx (Home Page):
+- Fetches list of published posts from /api/posts?published=true
+- Manages loading, error, and success states
+- Renders list of PostListItem components
+- Shows empty state when no posts exist
+
+Post.tsx (Individual Post View):
+- Extracts :slug parameter from URL using useParams()
+- Fetches full post data from /api/posts/:slug
+- Displays full post content (rendered as HTML)
+- Provides "Back to Blog" navigation link
+- Handles loading and error states
+
+About.tsx:
+- Static about page
+- [Currently minimal - can be expanded]
+
+================================================================================
+
+## STATE MANAGEMENT
+
+Currently using React hooks for local component state. No global state management
+library (Redux, Zustand, etc.) is needed at this scale.
+
+State Management Patterns:
+
+1. Data Fetching State (Blog.tsx, Post.tsx):
+   - useState for data storage (posts, post)
+   - useState for loading state
+   - useState for error handling
+   - useEffect for triggering API calls on mount
+
+2. URL Parameters (Post.tsx):
+   - useParams() hook extracts slug from URL
+   - Triggers data fetch when slug changes
+
+Future Considerations:
+- If app grows, consider React Context for shared state
+- For complex state, consider Zustand or Redux Toolkit
+- For server state, consider React Query or SWR
+
+================================================================================
+
+## API INTEGRATION
+
+Backend API Communication:
+
+All API calls use the native Fetch API:
+- Base URL: /api/*
+- Returns JSON responses
+- Error handling via try/catch
+
+API Endpoints Used:
+
+1. GET /api/posts?published=true
+   - Fetches list of published blog posts
+   - Returns: Array of PostListItem objects
+   - Used by: Blog.tsx
+
+2. GET /api/posts/:slug
+   - Fetches individual post by slug
+   - Returns: Full Post object with content
+   - Used by: Post.tsx
+
+Data Flow:
+1. Component mounts
+2. useEffect triggers API call
+3. Loading state shows "Loading..."
+4. On success: data stored in state, UI updates
+5. On error: error message displayed
+
+Response Types (defined in src/types/post.ts):
+
+PostListItem:
+- id, title, slug, excerpt
+- published, created_at, updated_at
+
+Post:
+- Same as PostListItem
+- Plus: content (full markdown/HTML)
+
+================================================================================
+
+## BUILD & DEPLOYMENT
+
+Development Mode:
+$ npm run dev
+- Starts Vite dev server on http://localhost:5173
+- Hot Module Replacement (HMR) for instant updates
+- Fast refresh preserves React component state
+- TypeScript compilation in watch mode
+
+Production Build:
+$ npm run build
+- TypeScript compilation (tsc -b)
+- Vite bundles and optimizes code
+- Output to dist/ directory
+- Minification, tree-shaking, code splitting
+- Assets get content hashes for cache busting
+
+Docker Multi-Stage Build (see Dockerfile):
+
+Stage 1 (builder):
+- Node.js 20 (Debian Bookworm base)
+- Installs dependencies (npm ci)
+- Builds production bundle (npm run build)
+- Creates optimized dist/ folder
+
+Stage 2 (production):
+- Nginx Alpine (minimal image)
+- Copies dist/ to /usr/share/nginx/html
+- Copies nginx.conf for routing and proxy
+- Exposes port 80
+
+Final Container:
+- Serves static React app via Nginx
+- Proxies /api/* requests to backend:8080
+- Handles SPA routing (try_files fallback to index.html)
+- Caches static assets (1 year expiry)
+
+================================================================================
+
+## NGINX CONFIGURATION
+
+Production Routing (nginx.conf):
+
+1. Static File Serving:
+   - Root: /usr/share/nginx/html
+   - SPA routing: all routes fall back to index.html
+   - React Router handles client-side routing
+
+2. API Reverse Proxy:
+   - /api/* → proxied to http://backend:8080/
+   - Preserves headers (X-Forwarded-For, X-Real-IP, etc.)
+   - Docker network enables backend:8080 resolution
+
+3. Static Asset Caching:
+   - CSS, JS, images: 1 year cache
+   - Cache-Control: "public, immutable"
+   - Optimizes repeat visits
+
+4. HTTP Headers:
+   - Proper forwarding for proxied requests
+   - WebSocket upgrade support (future-proofing)
+
+================================================================================
+
+## DATA FLOW EXAMPLE
+
+User Journey: Viewing a Blog Post
+
+1. User loads site → GET / → Blog.tsx renders
+2. Blog.tsx useEffect → fetch('/api/posts?published=true')
+3. Nginx proxies /api/* → backend:8080
+4. Backend returns JSON array of posts
+5. Blog.tsx updates state → renders PostListItem for each
+6. User clicks post → React Router navigates to /posts/my-post-slug
+7. Post.tsx extracts slug → fetch('/api/posts/my-post-slug')
+8. Backend returns full post with content
+9. Post.tsx renders title, date, and HTML content
+10. User clicks "Back to Blog" → navigates to / (no page reload)
+
+================================================================================
+
+## KEY DESIGN DECISIONS
+
+1. Why Vite over Create React App?
+   - Faster dev server (native ES modules)
+   - Faster builds (esbuild)
+   - Simpler configuration
+   - Better performance
+
+2. Why TypeScript?
+   - Type safety prevents runtime errors
+   - Better IDE autocomplete and intellisense
+   - Self-documenting code
+   - Easier refactoring
+
+3. Why React Router?
+   - Industry standard for React routing
+   - Declarative route definitions
+   - Nested routing support
+   - URL parameter extraction
+
+4. Why Nginx in Production?
+   - Extremely efficient static file serving
+   - Built-in reverse proxy
+   - Tiny Docker image (Alpine-based)
+   - Battle-tested in production
+
+5. Why No CSS Framework?
+   - Simple styling needs (inline + CSS files)
+   - Avoids bundle bloat
+   - Full control over styling
+   - Can add Tailwind/MUI later if needed
+
+================================================================================
+
+## DEVELOPMENT WORKFLOW
+
+Local Development (without Docker):
+
+1. Start backend:
+   cd ../backend && cargo run
+
+2. Start frontend:
+   cd frontend && npm run dev
+
+3. Access:
+   Frontend: http://localhost:5173
+   API calls: proxied to backend (configure vite.config.ts if needed)
+
+Production Deployment (with Docker):
+
+1. Build containers:
+   docker-compose -f docker-compose.prod.yml up -d --build
+
+2. Access:
+   http://localhost:80 (Nginx serves frontend, proxies API)
+
+Update Code:
+1. Edit files in src/
+2. Commit changes
+3. On VM: ./deploy.sh deploy
+   - Pulls latest git changes
+   - Rebuilds Docker containers
+   - Restarts services
+
+================================================================================
+
+## FUTURE ENHANCEMENTS
+
+Potential Improvements:
+
+1. Markdown Rendering:
+   - Integrate react-markdown for post content
+   - Syntax highlighting for code blocks
+   - Custom markdown components
+
+2. Image Optimization:
+   - Lazy loading images
+   - Responsive images (srcset)
+   - WebP format support
+
+3. SEO:
+   - React Helmet for meta tags
+   - Server-side rendering (SSR) with Next.js?
+   - Sitemap generation
+
+4. Performance:
+   - Code splitting by route
+   - Prefetch links on hover
+   - Service worker for offline support
+
+5. Features:
+   - Search functionality
+   - Tag/category filtering
+   - Comments section
+   - Dark mode toggle
+
+6. Testing:
+   - Unit tests (Vitest)
+   - Component tests (React Testing Library)
+   - E2E tests (Playwright)
+
+7. Styling:
+   - CSS modules or styled-components
+   - Tailwind CSS
+   - Responsive design improvements
+
+================================================================================
+
+## TROUBLESHOOTING
+
+Common Issues:
+
+1. API calls fail in production:
+   - Check nginx.conf proxy_pass configuration
+   - Verify backend container is running (docker ps)
+   - Check Docker network connectivity
+
+2. Routes return 404:
+   - Ensure nginx try_files includes /index.html fallback
+   - Check React Router route definitions in App.tsx
+
+3. Hot reload not working:
+   - Restart Vite dev server
+   - Check file watcher limits (Linux)
+
+4. Build fails:
+   - Check TypeScript errors (npm run lint)
+   - Verify dependencies installed (npm ci)
+   - Check Node.js version (node --version)
+
+5. Posts not loading:
+   - Check browser console for errors
+   - Verify backend is running and responding
+   - Check CORS headers (if backend on different domain)
+
+================================================================================
+
+## DOCUMENTATION REFERENCES
+
+React: https://react.dev/
+TypeScript: https://www.typescriptlang.org/docs/
+Vite: https://vite.dev/
+React Router: https://reactrouter.com/
+Nginx: https://nginx.org/en/docs/
+
+================================================================================
+
+Last Updated: 2025-11-15
