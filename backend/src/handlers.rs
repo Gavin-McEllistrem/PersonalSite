@@ -129,6 +129,7 @@ pub async fn upload_photo(mut payload: Multipart) -> impl Responder {
         // Get original filename
         let content_disposition = field.content_disposition();
         let original_filename = content_disposition
+            .expect("could not unwrap content")
             .get_filename()
             .unwrap_or("upload.jpg");
 
