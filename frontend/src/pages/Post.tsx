@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Post as PostType } from "../types/post";
+import type { Post as PostType } from "../types/post";
 
 export default function Post() {
   const { slug } = useParams<{ slug: string }>();

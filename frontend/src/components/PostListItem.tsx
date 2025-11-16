@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { PostListItem as PostListItemType } from "../types/post";
+import type { PostListItem as PostListItemType } from "../types/post";
 
 interface PostListItemProps {
   post: PostListItemType;

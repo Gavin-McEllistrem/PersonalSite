@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PostListItem as PostListItemType } from "../types/post";
+import type { PostListItem as PostListItemType } from "../types/post";
 import PostListItem from "../components/PostListItem";
 
 export default function Blog() {
