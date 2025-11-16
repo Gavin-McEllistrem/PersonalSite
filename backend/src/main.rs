@@ -25,7 +25,6 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .wrap(Cors::permissive())
-            .service(hello)
             // Blog API routes
             .route("/api/posts", web::get().to(handlers::get_posts))
             .route("/api/posts", web::post().to(handlers::create_post))

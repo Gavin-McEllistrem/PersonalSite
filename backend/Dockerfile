@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy manifests
 COPY Cargo.toml Cargo.lock ./
 
+# Copy schema
+COPY schema.sql ./
+
 # Copy source code
 COPY src ./src
 
