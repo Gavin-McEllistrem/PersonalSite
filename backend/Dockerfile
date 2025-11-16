@@ -28,6 +28,10 @@ RUN apt-get update && \
 # Copy the binary from builder
 COPY --from=builder /app/target/release/backend /app/backend
 
+# Create directory for database and photos with proper permissions
+RUN mkdir -p /var/lib/personal-website/photos && \
+    chmod -R 755 /var/lib/personal-website
+
 # Expose port
 EXPOSE 8080
 

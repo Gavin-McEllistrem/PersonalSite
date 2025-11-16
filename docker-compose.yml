@@ -14,10 +14,8 @@ services:
       - DATABASE_URL=sqlite:/var/lib/personal-website/blog.db
       - UPLOAD_DIR=/var/lib/personal-website/photos
     volumes:
-      # Database storage
-      - db-data:/var/lib/personal-website
-      # Uploaded photos
-      - photo-data:/var/lib/personal-website/photos
+      # Database and photos storage (combined to avoid overlap)
+      - app-data:/var/lib/personal-website
 
   frontend:
     build:
@@ -33,14 +31,12 @@ services:
       - app-network
     volumes:
       # Share photos with frontend for serving via nginx
-      - photo-data:/usr/share/nginx/html/photos:ro
+      - app-data:/var/lib/personal-website:ro
 
 networks:
   app-network:
     driver: bridge
 
 volumes:
-  db-data:
-    driver: local
-  photo-data:
+  app-data:
     driver: local
