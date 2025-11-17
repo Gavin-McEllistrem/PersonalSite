@@ -19,15 +19,18 @@ export default function PostListItem({ post }: PostListItemProps) {
     <article
       style={{
         padding: "1.5rem",
-        border: "1px solid #e0e0e0",
+        border: "1px solid var(--bg3)",
         borderRadius: "8px",
-        transition: "box-shadow 0.2s",
+        transition: "box-shadow 0.2s, background-color 0.2s",
+        backgroundColor: "var(--bg1)",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)";
+        e.currentTarget.style.backgroundColor = "var(--bg2)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = "none";
+        e.currentTarget.style.backgroundColor = "var(--bg1)";
       }}
     >
       <Link
@@ -40,7 +43,7 @@ export default function PostListItem({ post }: PostListItemProps) {
         <h2
           style={{
             margin: "0 0 0.5rem 0",
-            color: "#333",
+            color: "var(--yellow-bright)",
             fontSize: "1.5rem",
           }}
         >
@@ -49,13 +52,13 @@ export default function PostListItem({ post }: PostListItemProps) {
         <p
           style={{
             margin: "0 0 1rem 0",
-            color: "#666",
+            color: "var(--gray)",
             fontSize: "0.9rem",
           }}
         >
           {formatDate(post.created_at)}
         </p>
-        <p style={{ margin: 0, color: "#555", lineHeight: "1.6" }}>
+        <p style={{ margin: 0, color: "var(--fg2)", lineHeight: "1.6" }}>
           {post.excerpt}
         </p>
       </Link>

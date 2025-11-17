@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import type { Post as PostType } from "../types/post";
 
 export default function Post() {
@@ -43,37 +44,39 @@ export default function Post() {
 
   if (loading) {
     return (
-      <div style={{ padding: "2rem" }}>
-        <p>Loading post...</p>
+      <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
+        <p style={{ color: "var(--fg2)" }}>Loading post...</p>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div style={{ padding: "2rem" }}>
-        <p style={{ color: "red" }}>Error: {error || "Post not found"}</p>
-        <Link to="/">Back to Blog</Link>
+      <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
+        <p style={{ color: "var(--red-dim)" }}>Error: {error || "Post not found"}</p>
+        <Link to="/" style={{ color: "var(--blue-bright)", textDecoration: "none" }}>Back to Blog</Link>
       </div>
     );
   }
 
   return (
     <article style={{ maxWidth: "700px", margin: "0 auto" }}>
-      <Link to="/" style={{ textDecoration: "none", color: "#666", fontSize: "0.9rem" }}>
+      <Link to="/" style={{ textDecoration: "none", color: "var(--gray)", fontSize: "0.9rem" }}>
         ← Back to Blog
       </Link>
 
-      <h1 style={{ marginTop: "1rem" }}>{post.title}</h1>
+      <h1 style={{ marginTop: "1rem", color: "var(--fg0)" }}>{post.title}</h1>
 
-      <p style={{ color: "#666", fontSize: "0.9rem" }}>
+      <p style={{ color: "var(--gray)", fontSize: "0.9rem" }}>
         {formatDate(post.created_at)}
       </p>
 
       <div
-        style={{ lineHeight: "1.8", marginTop: "2rem" }}
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+        style={{ lineHeight: "1.8", marginTop: "2rem", textAlign: "left", color: "var(--fg1)" }}
+        className="markdown-content"
+      >
+        <ReactMarkdown>{post.content}</ReactMarkdown>
+      </div>
     </article>
   );
 }

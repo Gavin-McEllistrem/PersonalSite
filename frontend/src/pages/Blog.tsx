@@ -31,28 +31,28 @@ export default function Blog() {
 
   if (loading) {
     return (
-      <div style={{ padding: "2rem" }}>
-        <h1>Blog</h1>
-        <p>Loading posts...</p>
+      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+        <h1 style={{ color: "var(--fg0)" }}>Blog</h1>
+        <p style={{ color: "var(--fg2)" }}>Loading posts...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: "2rem" }}>
-        <h1>Blog</h1>
-        <p style={{ color: "red" }}>Error: {error}</p>
+      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+        <h1 style={{ color: "var(--fg0)" }}>Blog</h1>
+        <p style={{ color: "var(--red-dim)" }}>Error: {error}</p>
       </div>
     );
   }
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-      <h1>Blog</h1>
+      <h1 style={{ color: "var(--fg0)" }}>Blog</h1>
 
       {posts.length === 0 ? (
-        <p>No posts yet. Check back soon!</p>
+        <p style={{ color: "var(--fg2)" }}>No posts yet. Check back soon!</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           {posts.map((post) => (

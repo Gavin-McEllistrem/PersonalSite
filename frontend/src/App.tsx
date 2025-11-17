@@ -1,5 +1,6 @@
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import Navbar from "./components/Navbar";
+import MobileNav from "./components/MobileNav";
 import Blog from "./pages/Blog";
 import Post from "./pages/Post";
 import About from "./pages/About";
@@ -7,7 +8,7 @@ import About from "./pages/About";
 function App() {
   return (
     <Router>
-       <div className="app-container">
+      <div className="app-container">
         <Navbar />
         <main className="main-content">
           <Routes>
@@ -17,6 +18,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      <MobileNav />
     </Router>
   );
 }

@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <h1 className="site-title">Gavin McEllistrem</h1>
-      <ul className="nav-links">
+      <ul className="nav-links desktop-nav">
         <li><Link to="/">Blog</Link></li>
         <li><Link to="/about">About</Link></li>
       </ul>
