@@ -11,7 +11,7 @@ services:
       - app-network
     environment:
       - RUST_LOG=info
-      - DATABASE_URL=sqlite:/var/lib/personal-website/blog.db
+      - DATABASE_URL=sqlite:///var/lib/personal-website/blog.db
       - UPLOAD_DIR=/var/lib/personal-website/photos
     volumes:
       # Database and photos storage (combined to avoid overlap)
