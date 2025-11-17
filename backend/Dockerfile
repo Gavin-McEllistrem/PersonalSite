@@ -28,12 +28,8 @@ RUN apt-get update && \
 # Copy the binary from builder
 COPY --from=builder /app/target/release/backend /app/backend
 
-# Create directory for database and photos with proper permissions
-RUN mkdir -p /var/lib/personal-website/photos && \
-    chmod -R 755 /var/lib/personal-website
-
 # Expose port
 EXPOSE 8080
 
-# Run the binary
-CMD ["/app/backend"]
+# Run the binary (ensure directory exists at runtime since volume mount may override build-time directory)
+CMD mkdir -p /var/lib/personal-website/photos && /app/backend
